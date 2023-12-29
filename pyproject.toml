@@ -1,0 +1,53 @@
+[project]
+name = "ctypes_sample"
+authors = [
+    { name = "Tobikura", email = "8867963+tobikura@users.noreply.github.com" },
+]
+description = "Example of calling a shared libarary using ctypes"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: C",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS :: MacOS X",
+]
+
+dynamic = ["version", "dependencies"]
+
+[build-system]
+requires = ["hatchling", "hatch-requirements-txt"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "ctypes_sample/__about__.py"
+
+[tool.hatch.metadata.hooks.requirements_txt]
+files = ["requirements.txt"]
+
+# call hatch_build.py
+[tool.hatch.build.hooks.custom]
+# python_tag = "py39"
+# abi_tag = "none"
+# platform_tag = "linux_x86_64"
+
+[tool.hatch.build.targets.wheel]
+artifacts = ["*.so", "*.dll", "*.dylib"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B"]
+ignore = []
+
+fixable = ["ALL"]
+
+[tool.pytest.ini_options]
+#pythonpath = "ctypes_sample"
+testpaths = ["test"]
+addopts = "-s"
+
+[tool.mypy]
+strict = true

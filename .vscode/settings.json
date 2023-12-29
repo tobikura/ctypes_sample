@@ -1,0 +1,26 @@
+{
+    "editor.formatOnSave": true,
+    "cmake.options.statusBarVisibility": "compact",
+    "cmake.sourceDirectory": [
+        "${workspaceFolder}",
+    ],
+    "cmake.buildDirectory": "${sourceDirectory}/build",
+    "cmake.generator": "Ninja Multi-Config",
+    "cmake.configureArgs": [
+        "-DCMAKE_VERBOSE_BUILD=1",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+        "-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64",
+        "-DCMAKE_MACOSX_DEPLOYMENT_TARGET=11.0"
+    ],
+    "cmake.buildArgs": [
+        "-v"
+    ],
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "charliermarsh.ruff"
+    },
+    "python.testing.pytestEnabled": true,
+    "python.analysis.extraPaths": [
+        "./python"
+    ],
+}

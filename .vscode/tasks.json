@@ -1,0 +1,78 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "echo",
+            "type": "shell",
+            "command": "echo HOGE",
+            "group": "build"
+        },
+        {
+            "type": "cmake",
+            "label": "CMake: configuration",
+            "command": "configure",
+            "problemMatcher": [],
+            "detail": "CMake 構成 タスク"
+        },
+        {
+            "type": "cmake",
+            "label": "CMake: build",
+            "command": "build",
+            "targets": [
+                "all"
+            ],
+            "problemMatcher": [],
+            "detail": "CMake ビルド タスク"
+        },
+        {
+            "label": "Python: Resolve dependencies of package",
+            "type": "process",
+            "command": "${command:python.interpreterPath}",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "args": [
+                "-m",
+                "pip",
+                "install",
+                "-r",
+                "requirements.txt",
+                "-r",
+                "requirements-dev.txt"
+            ]
+        },
+        {
+            "label": "Python: build wheel",
+            "type": "process",
+            "command": "${command:python.interpreterPath}",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "args": [
+                "-m",
+                "build",
+                "--wheel",
+                "--no-isolation"
+            ]
+        },
+        {
+            "label": "Build All",
+            "type": "shell",
+            "command": "",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "CMake: configuration",
+                "CMake: build",
+                "Python: Resolve dependencies of package",
+                "Python: build wheel"
+            ],
+            "detail": "Build: All"
+        }
+    ]
+}
