@@ -1,12 +1,12 @@
 # This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
-name: CMake on multiple platforms
+name: Build wheel on multiple platforms
 
 on:
   push:
     branches: [ "main", "feature/**" ]
-  pull_request:
-    branches: [ "main", "feature/**" ]
+  #pull_request:
+  #  branches: [ "main", "feature/**" ]
 
 jobs:
   build:
@@ -23,36 +23,49 @@ jobs:
       #
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-22.04, windows-2022, macos-12]
         build_type: [Release]
         c_compiler: [gcc, clang, cl]
         include:
-          - os: windows-latest
+          - os: windows-2022
             c_compiler: cl
             cpp_compiler: cl
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             c_compiler: gcc
             cpp_compiler: g++
-          - os: ubuntu-latest
+          - os: macos-12
             c_compiler: clang
             cpp_compiler: clang++
         exclude:
-          - os: windows-latest
+          - os: windows-2022
             c_compiler: gcc
-          - os: windows-latest
+          - os: windows-2022
             c_compiler: clang
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
+            c_compiler: cl
+          - os: ubuntu-22.04
+            c_compiler: clang
+          - os: macos-12
+            c_compiler: gcc
+          - os: macos-12
             c_compiler: cl
 
     steps:
     - uses: actions/checkout@v3
 
+    - uses: lukka/get-cmake@latest  
+      with:
+        useLocalCache: false
+        useCloudCache: true 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - uses: ilammy/msvc-dev-cmd@v1
+      if: runner.os == 'Windows'
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -67,7 +80,7 @@ jobs:
         -DCMAKE_VERBOSE_BUILD=1
         -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
         '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64'
-        -DCMAKE_MACOSX_DEPLOYMENT_TARGET=11.0
+        "-DCMAKE_MACOSX_DEPLOYMENT_TARGET=12.0"
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
@@ -77,3 +90,17 @@ jobs:
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest --build-config ${{ matrix.build_type }}
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.9"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt -r requirements-dev.txt
+    - name: pytest
+      run: |
+        python -m pytest --capture=sys
+    - name: Build wheel
+      run: |
+        python -m build --wheel --no-isolation
