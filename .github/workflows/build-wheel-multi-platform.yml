@@ -7,6 +7,10 @@ on:
     branches: [ "main", "feature/**" ]
   #pull_request:
   #  branches: [ "main", "feature/**" ]
+  workflow_call:
+    secrets:
+      token:
+        required: true
 
 jobs:
   build:
@@ -23,7 +27,7 @@ jobs:
       #
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-22.04, windows-2022, macos-12]
+        os: [ubuntu-22.04, windows-2022, macos-12, macos-14]
         build_type: [Release]
         c_compiler: [gcc, clang, cl]
         include:
@@ -34,6 +38,9 @@ jobs:
             c_compiler: gcc
             cpp_compiler: g++
           - os: macos-12
+            c_compiler: clang
+            cpp_compiler: clang++
+          - os: macos-14
             c_compiler: clang
             cpp_compiler: clang++
         exclude:
@@ -49,9 +56,13 @@ jobs:
             c_compiler: gcc
           - os: macos-12
             c_compiler: cl
+          - os: macos-14
+            c_compiler: gcc
+          - os: macos-14
+            c_compiler: cl
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - uses: lukka/get-cmake@latest  
       with:
@@ -91,16 +102,31 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest --build-config ${{ matrix.build_type }}
     - name: Set up Python 3.9
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
+      if: matrix.os != 'macos-14'
       with:
         python-version: "3.9"
+    - name: Set python command name for setup-python
+      if: matrix.os != 'macos-14'
+      shell: bash
+      run: |
+        echo "python_cmd=python" >> $GITHUB_ENV
+    - name: Set python command name for custom
+      if: matrix.os == 'macos-14'
+      run: |
+        echo "python_cmd=python3" >> $GITHUB_ENV
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt -r requirements-dev.txt
+        ${{ env.python_cmd }} -m pip install --upgrade pip
+        ${{ env.python_cmd }} -m pip install -r requirements.txt -r requirements-dev.txt
     - name: pytest
       run: |
-        python -m pytest --capture=sys
+        ${{ env.python_cmd }} -m pytest --capture=sys
     - name: Build wheel
       run: |
-        python -m build --wheel --no-isolation
+        ${{ env.python_cmd }} -m build --wheel --no-isolation
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: wheel-${{ matrix.os }}
+        path: dist/ctypes_sample-*.whl

@@ -1,0 +1,26 @@
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  call-build:
+    uses: ./.github/workflows/build-wheel-multi-platform.yml
+    secrets:
+      token: ${{ secrets.token }}
+  release:
+    runs-on: [ubuntu-latest]
+    permissions:
+      contents: write
+    needs: call-build
+    steps:
+    - name: check
+      run: |
+        echo "check"
+    - uses: actions/download-artifact@v4
+      id: download-artifact
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: '**/ctypes_sample-*.whl'
+        draft: true
