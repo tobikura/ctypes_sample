@@ -4,6 +4,8 @@
         "ascontiguousarray",
         "ctypes",
         "dtype",
-        "ndarray"
+        "ndarray",
+        "pytest",
+        "softprops"
     ]
 }
