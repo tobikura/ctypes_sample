@@ -9,5 +9,6 @@ build/
 /ctypes_sample/sample.dll
 /ctypes_sample/libsample.dylib
 /ctypes_sample/libsample.so
+/ctypes_sample/_version.py
 
 .DS_store

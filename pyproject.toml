@@ -17,14 +17,17 @@ classifiers = [
 dynamic = ["version", "dependencies"]
 
 [build-system]
-requires = ["hatchling", "hatch-requirements-txt"]
+requires = ["hatchling", "hatch-requirements-txt", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
-path = "ctypes_sample/__about__.py"
+source = "vcs"
 
 [tool.hatch.metadata.hooks.requirements_txt]
 files = ["requirements.txt"]
+
+[tool.hatch.build.hooks.vcs]
+version-file = "ctypes_sample/_version.py"
 
 # call hatch_build.py
 [tool.hatch.build.hooks.custom]
@@ -51,3 +54,11 @@ addopts = "-s"
 
 [tool.mypy]
 strict = true
+
+[[tool.mypy.overrides]]
+module = ["macholib", "macholib.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [".hatch_build_macos"]
+ignore_missing_imports = true
