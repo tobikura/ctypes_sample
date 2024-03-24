@@ -119,12 +119,12 @@ jobs:
       run: |
         ${{ env.python_cmd }} -m pip install --upgrade pip
         ${{ env.python_cmd }} -m pip install -r requirements.txt -r requirements-dev.txt
-    - name: pytest
-      run: |
-        ${{ env.python_cmd }} -m pytest --capture=sys
     - name: Build wheel
       run: |
         ${{ env.python_cmd }} -m build --wheel --no-isolation
+    - name: pytest
+      run: |
+        ${{ env.python_cmd }} -m pytest --capture=sys
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
