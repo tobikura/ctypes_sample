@@ -2,9 +2,13 @@
     "words": [
         "argn",
         "ascontiguousarray",
+        "cputype",
         "ctypes",
         "dtype",
+        "libsample",
         "ndarray",
+        "ntools",
+        "ptypes",
         "pytest",
         "softprops"
     ]

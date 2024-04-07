@@ -91,7 +91,7 @@ jobs:
         -DCMAKE_VERBOSE_BUILD=1
         -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
         '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64'
-        "-DCMAKE_MACOSX_DEPLOYMENT_TARGET=12.0"
+        "-DCMAKE_OSX_DEPLOYMENT_TARGET=12.0"
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
@@ -106,25 +106,25 @@ jobs:
       if: matrix.os != 'macos-14'
       with:
         python-version: "3.9"
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      if: matrix.os == 'macos-14'
+      with:
+        python-version: "3.12"
     - name: Set python command name for setup-python
-      if: matrix.os != 'macos-14'
       shell: bash
       run: |
         echo "python_cmd=python" >> $GITHUB_ENV
-    - name: Set python command name for custom
-      if: matrix.os == 'macos-14'
-      run: |
-        echo "python_cmd=python3" >> $GITHUB_ENV
     - name: Install dependencies
       run: |
         ${{ env.python_cmd }} -m pip install --upgrade pip
         ${{ env.python_cmd }} -m pip install -r requirements.txt -r requirements-dev.txt
-    - name: pytest
-      run: |
-        ${{ env.python_cmd }} -m pytest --capture=sys
     - name: Build wheel
       run: |
         ${{ env.python_cmd }} -m build --wheel --no-isolation
+    - name: pytest
+      run: |
+        ${{ env.python_cmd }} -m pytest --capture=no
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
